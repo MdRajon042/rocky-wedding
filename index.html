@@ -506,7 +506,7 @@
             <div class="event-card">
               <div class="event-date">26 SEPTEMBER 2026</div>
               <div class="event-name">Mehendi</div>
-              <div class="event-time">06:00 PM · Venue details coming soon</div>
+              <div class="event-time">06:00 PM · Venue to be announced</div>
             </div>
             <div class="event-dot">✦</div>
           </div>
@@ -524,7 +524,7 @@
             <div class="event-card">
               <div class="event-date">28 SEPTEMBER 2026</div>
               <div class="event-name">The Wedding</div>
-              <div class="event-time">07:30 PM · Venue details coming soon</div>
+              <div class="event-time">07:30 PM · Western Park Community Center</div>
             </div>
             <div class="event-dot">♥</div>
           </div>
@@ -534,7 +534,7 @@
             <div class="event-card">
               <div class="event-date">29 SEPTEMBER 2026</div>
               <div class="event-name">Reception</div>
-              <div class="event-time">07:00 PM · Venue details coming soon</div>
+              <div class="event-time">07:00 PM · Hometown</div>
             </div>
           </div>
         </div>
@@ -603,10 +603,8 @@
             We'd love to celebrate this beautiful day with the people who make our
             lives special. Please let us know if you'll be joining us.
           </p>
-          <p class="rsvp-note">
-            <strong>Note:</strong> This single-file demo stores RSVP submissions
-            only in this browser's local storage. Connect Firebase or Supabase later
-            if you want a shared guest database.
+          <p class="rsvp-note" id="rsvpStatusNote">
+            Your response is saved directly to Rocky &amp; Anu's guest list.
           </p>
         </div>
 
@@ -646,12 +644,12 @@
               </div>
             </div>
             <div class="submit-row">
-              <button class="btn primary" type="submit">SEND MY RSVP ♡</button>
+              <button class="btn primary" type="submit" id="rsvpSubmitBtn">SEND MY RSVP ♡</button>
             </div>
             <div class="success" id="rsvpSuccess">
               <div class="heart">♥</div>
               <h3>Thank You!</h3>
-              <p>Your response has been saved on this device. We can't wait to celebrate with you.</p>
+              <p>Your response has been recorded. We can't wait to celebrate with you.</p>
             </div>
           </form>
         </div>
@@ -665,14 +663,14 @@
           <h2 class="section-title">Guest <em>Wishes</em></h2>
           <div class="gold-line"></div>
           <p class="section-intro" style="margin:auto">
-            Leave a message for Rocky &amp; Anu. Wishes are saved locally in this demo.
+            Leave a message for Rocky &amp; Anu.
           </p>
         </div>
 
         <form class="wish-form reveal" id="wishForm">
           <input id="wishName" required placeholder="Your name">
           <textarea id="wishMessage" required placeholder="Write your wish..." rows="1"></textarea>
-          <button class="btn primary" type="submit">SEND ♡</button>
+          <button class="btn primary" type="submit" id="wishSubmitBtn">SEND ♡</button>
         </form>
 
         <div class="wish-wall" id="wishWall">
@@ -698,23 +696,24 @@
           <div class="eyebrow">The Celebration</div>
           <h2 class="section-title">Where <em>Forever</em> Begins</h2>
           <div class="gold-line"></div>
-          <p class="section-intro" style="margin:auto">Venue details can be replaced as soon as you have the final information.</p>
+          <p class="section-intro" style="margin:auto">Join us at the wedding venue below. Mehendi &amp; Sangeet locations will be announced closer to the date.</p>
         </div>
 
         <div class="location-grid" style="margin-top:45px">
           <div class="map-card reveal">
             <iframe
               loading="lazy"
-              src="https://www.google.com/maps?q=Chattogram%2C%20Bangladesh&output=embed"
-              title="Map placeholder">
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3689.015458117027!2d91.85808678533738!3d22.390774687081603!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x30ad27b71ac07c4b%3A0x601c6f90112d2c6d!2sWestern%20Park%20Community%20Center!5e0!3m2!1sen!2sbd!4v1786999375287!5m2!1sen!2sbd"
+              title="Western Park Community Center map">
             </iframe>
           </div>
           <div class="venue-card reveal">
             <div class="eyebrow">Wedding Venue</div>
-            <div class="venue-name">Venue Details<br>Coming Soon</div>
+            <div class="venue-name">Western Park<br>Community Center</div>
             <p class="venue-address">
-              Replace this section with the final venue name, address and map link.
-              The button below copies the current placeholder address.
+              The Wedding ceremony on 28 September will be held here. Mehendi venue
+              will be announced closer to the date, and the Reception on 29 September
+              will take place at the couple's hometown.
             </p>
             <div style="display:flex;gap:10px;flex-wrap:wrap">
               <button class="btn primary" id="directionsBtn">GET DIRECTIONS ↗</button>
@@ -773,7 +772,12 @@
     // ============================================================
 
     const WEDDING_DATE = new Date("2026-09-28T19:30:00+06:00");
-    const VENUE_ADDRESS = "Chattogram, Bangladesh — Replace with final wedding venue";
+    const VENUE_ADDRESS = "Western Park Community Center, Chattogram, Bangladesh";
+
+    // Paste the Google Apps Script Web App URL here after you deploy it
+    // (Extensions > Apps Script > Deploy > New deployment > Web app).
+    // It should end with /exec
+    const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzIADVEYh7bKA0SwQrGmb-Cs2vD4xc92kjoRSIO6jqnezMBYoa5rw47AYKi3cBM-6Aq/exec";
 
     const loader = document.getElementById("loader");
     const openInvitation = document.getElementById("openInvitation");
@@ -909,7 +913,7 @@
         "DTEND:20260928T233000",
         "SUMMARY:Rocky & Anu — The Wedding",
         "DESCRIPTION:Rocky & Anu — Together Forever",
-        "LOCATION:Chattogram, Bangladesh",
+        "LOCATION:Western Park Community Center, Chattogram, Bangladesh",
         "END:VEVENT",
         "END:VCALENDAR"
       ].join("\r\n");
@@ -971,24 +975,70 @@
       if(e.key==="ArrowRight")changeLightbox(1);
     });
 
+    // ---------- GOOGLE SHEETS HELPERS ----------
+    function isGasConfigured(){
+      return GAS_WEB_APP_URL && GAS_WEB_APP_URL.indexOf("PASTE_YOUR") === -1;
+    }
+
+    // Fire-and-forget POST (Apps Script web apps don't return readable CORS
+    // responses to fetch(), so we send with no-cors and treat it as success).
+    function sendToSheet(payload){
+      return fetch(GAS_WEB_APP_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload)
+      });
+    }
+
+    // JSONP GET to read wishes back (avoids CORS read restrictions).
+    function fetchWishesFromSheet(){
+      if(!isGasConfigured()) return;
+      const callbackName = "raWishCallback_" + Date.now();
+      window[callbackName] = function(data){
+        const wall = document.getElementById("wishWall");
+        wall.innerHTML = "";
+        (data.wishes || []).forEach(addWishCard);
+        delete window[callbackName];
+        script.remove();
+      };
+      const script = document.createElement("script");
+      script.src = GAS_WEB_APP_URL + "?callback=" + callbackName;
+      script.onerror = () => { delete window[callbackName]; };
+      document.body.appendChild(script);
+    }
+
     // ---------- RSVP ----------
-    document.getElementById("rsvpForm").addEventListener("submit",e=>{
+    document.getElementById("rsvpForm").addEventListener("submit", async e=>{
       e.preventDefault();
 
       const data={
-        id:Date.now(),
         name:document.getElementById("guestName").value.trim(),
         contact:document.getElementById("guestContact").value.trim(),
         attendance:document.querySelector('input[name="attendance"]:checked')?.value,
         guests:document.getElementById("guestCount").value,
         meal:document.getElementById("meal").value,
-        message:document.getElementById("rsvpMessage").value.trim(),
-        submittedAt:new Date().toISOString()
+        message:document.getElementById("rsvpMessage").value.trim()
       };
 
+      const submitBtn = document.getElementById("rsvpSubmitBtn");
+
+      // Always keep a local backup copy too.
       const saved=JSON.parse(localStorage.getItem("ra-rsvps")||"[]");
-      saved.push(data);
+      saved.push({...data, submittedAt:new Date().toISOString()});
       localStorage.setItem("ra-rsvps",JSON.stringify(saved));
+
+      if(isGasConfigured()){
+        submitBtn.disabled = true;
+        submitBtn.textContent = "SENDING...";
+        try{
+          await sendToSheet({ action:"rsvp", ...data });
+        }catch(err){
+          console.error("RSVP sheet submit failed", err);
+        }
+        submitBtn.disabled = false;
+        submitBtn.textContent = "SEND MY RSVP ♡";
+      }
 
       document.getElementById("rsvpForm").reset();
       document.getElementById("rsvpSuccess").classList.add("show");
@@ -996,35 +1046,48 @@
     });
 
     // ---------- WISHES ----------
-    function loadWishes(){
-      const wishes=JSON.parse(localStorage.getItem("ra-wishes")||"[]");
-      wishes.slice(-6).reverse().forEach(addWishCard);
-    }
-
     function addWishCard(wish){
       const card=document.createElement("article");
       card.className="wish";
       card.innerHTML=`<strong>${escapeHtml(wish.name)}</strong><p>${escapeHtml(wish.message)}</p>`;
       document.getElementById("wishWall").prepend(card);
       revealObserver.observe(card);
+      card.classList.add("visible");
     }
 
-    document.getElementById("wishForm").addEventListener("submit",e=>{
+    document.getElementById("wishForm").addEventListener("submit", async e=>{
       e.preventDefault();
       const wish={
-        id:Date.now(),
         name:document.getElementById("wishName").value.trim(),
-        message:document.getElementById("wishMessage").value.trim(),
-        createdAt:new Date().toISOString()
+        message:document.getElementById("wishMessage").value.trim()
       };
+      const submitBtn = document.getElementById("wishSubmitBtn");
+
       const saved=JSON.parse(localStorage.getItem("ra-wishes")||"[]");
-      saved.push(wish);
+      saved.push({...wish, createdAt:new Date().toISOString()});
       localStorage.setItem("ra-wishes",JSON.stringify(saved));
+
       addWishCard(wish);
       e.target.reset();
+
+      if(isGasConfigured()){
+        submitBtn.disabled = true;
+        try{
+          await sendToSheet({ action:"wish", ...wish });
+        }catch(err){
+          console.error("Wish sheet submit failed", err);
+        }
+        submitBtn.disabled = false;
+      }
+
       showToast("Your wish has been added. ♥");
     });
-    loadWishes();
+
+    // Load wishes from the shared sheet if configured, otherwise fall back
+    // to whatever the default sample wishes already in the HTML show.
+    if(isGasConfigured()){
+      fetchWishesFromSheet();
+    }
 
     // ---------- LOCATION ----------
     document.getElementById("copyAddressBtn").addEventListener("click",async()=>{
