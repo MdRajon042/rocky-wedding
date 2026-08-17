@@ -80,12 +80,55 @@
     .monogram:before{left:13px}.monogram:after{right:13px}
     .loader-script{font-family:"Great Vibes",cursive;font-size:44px}
     .loader-date{margin:10px 0 28px;color:#d6c5cb;letter-spacing:3px;font-size:11px}
-    .open-btn{
-      border:1px solid var(--gold-2);background:transparent;color:#fff;
-      padding:13px 25px;border-radius:999px;letter-spacing:1.8px;font-size:11px;
-      transition:.35s ease;
+
+    /* ---------- ENVELOPE INTRO ---------- */
+    .envelope-wrap{perspective:1400px;animation:envelopeIn 1.1s cubic-bezier(.2,.8,.2,1)}
+    @keyframes envelopeIn{from{opacity:0;transform:translateY(18px) scale(.96)}to{opacity:1;transform:none}}
+    .envelope{position:relative;width:min(78vw,270px);height:min(53vw,184px);margin:0 auto}
+    .envelope-back{
+      position:absolute;inset:0;border-radius:6px;z-index:1;
+      background:linear-gradient(135deg,#241720,#171016);
+      border:1px solid rgba(228,195,123,.3);
+      box-shadow:0 30px 70px rgba(0,0,0,.5);
     }
-    .open-btn:hover{background:var(--gold-2);color:#24171d;transform:translateY(-2px)}
+    .envelope-card{
+      position:absolute;left:9%;right:9%;bottom:6px;height:14%;z-index:2;
+      background:linear-gradient(180deg,#2b1c24,#1b1119);
+      border:1px solid rgba(228,195,123,.28);border-radius:5px;
+      overflow:hidden;display:flex;align-items:center;justify-content:center;
+      transition:height 1.05s cubic-bezier(.2,.8,.2,1) .35s,transform 1.05s cubic-bezier(.2,.8,.2,1) .35s;
+    }
+    .envelope.open .envelope-card{height:94%;transform:translateY(-16px)}
+    .envelope-flap{
+      position:absolute;top:0;left:0;width:100%;height:100%;z-index:3;
+      clip-path:polygon(0 0,100% 0,50% 58%);
+      background:linear-gradient(150deg,#2c1c26,#1c121a);
+      border-bottom:1px solid rgba(228,195,123,.22);
+      transform-origin:top center;
+      transition:transform 1.1s cubic-bezier(.4,.2,.2,1);
+    }
+    .envelope.open .envelope-flap{transform:rotateX(180deg)}
+    .card-content{opacity:0;transition:opacity .6s ease .95s;padding:10px}
+    .envelope.open .card-content{opacity:1}
+    .card-content .monogram{width:58px;height:58px;font-size:18px;margin:0 auto 10px}
+    .card-content .monogram:before,.card-content .monogram:after{width:5px;height:5px;top:7px}
+    .card-content .monogram:before{left:10px}.card-content .monogram:after{right:10px}
+    .card-content .loader-script{font-size:clamp(24px,6vw,30px)}
+    .card-content .loader-date{margin:6px 0 0;font-size:9px}
+    .wax-seal{
+      position:absolute;top:52%;left:50%;transform:translate(-50%,-50%);
+      width:min(17vw,66px);height:min(17vw,66px);border-radius:50%;z-index:5;
+      border:2px solid rgba(255,255,255,.18);
+      background:radial-gradient(circle at 34% 28%,#dba652,#8f3535 72%);
+      color:#fbeed9;font-family:"Cormorant Garamond",serif;font-size:clamp(15px,3.6vw,19px);font-weight:600;
+      display:flex;align-items:center;justify-content:center;letter-spacing:.5px;
+      cursor:pointer;box-shadow:0 10px 24px rgba(0,0,0,.45),inset 0 2px 5px rgba(255,255,255,.25);
+      transition:transform .4s ease,opacity .5s ease .15s;
+    }
+    .wax-seal:hover{transform:translate(-50%,-50%) scale(1.06)}
+    .envelope.open .wax-seal{transform:translate(-50%,-50%) scale(.35) rotate(20deg);opacity:0;pointer-events:none}
+    .tap-hint{margin-top:20px;letter-spacing:3px;font-size:10px;color:#d6c5cb;transition:opacity .4s ease;animation:hintPulse 1.8s infinite}
+    @keyframes hintPulse{50%{opacity:.3}}
 
     /* ---------- GLOBAL ---------- */
     .container{width:min(1160px,calc(100% - 40px));margin:auto}
@@ -413,10 +456,21 @@
 <body>
   <div class="loader" id="loader">
     <div class="loader-inner">
-      <div class="monogram">R<span>♥</span>A</div>
-      <div class="loader-script">Rocky &amp; Anu</div>
-      <div class="loader-date">28 · 09 · 2026</div>
-      <button class="open-btn" id="openInvitation">OPEN INVITATION</button>
+      <div class="envelope-wrap">
+        <div class="envelope" id="envelope">
+          <div class="envelope-back"></div>
+          <div class="envelope-card">
+            <div class="card-content">
+              <div class="monogram">R<span>♥</span>A</div>
+              <div class="loader-script">Rocky &amp; Anu</div>
+              <div class="loader-date">28 · 09 · 2026</div>
+            </div>
+          </div>
+          <div class="envelope-flap"></div>
+          <button class="wax-seal" id="waxSeal" aria-label="Break the seal to open invitation">R&amp;A</button>
+        </div>
+      </div>
+      <div class="tap-hint" id="tapHint">Tap the seal to open</div>
     </div>
   </div>
 
@@ -720,7 +774,9 @@
             <div class="eyebrow">Wedding Venue</div>
             <div class="venue-name">Western Park<br>Community Center</div>
             <p class="venue-address">
-              Chittagong - Cox's Bazar Hwy, Chattogram
+              The Wedding ceremony on 28 September will be held here. Mehendi venue
+              will be announced closer to the date, and the Reception on 29 September
+              will take place at the couple's hometown.
             </p>
             <div style="display:flex;gap:10px;flex-wrap:wrap">
               <button class="btn primary" id="directionsBtn">GET DIRECTIONS ↗</button>
@@ -787,16 +843,24 @@
     const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzIADVEYh7bKA0SwQrGmb-Cs2vD4xc92kjoRSIO6jqnezMBYoa5rw47AYKi3cBM-6Aq/exec";
 
     const loader = document.getElementById("loader");
-    const openInvitation = document.getElementById("openInvitation");
+    const envelope = document.getElementById("envelope");
+    const waxSeal = document.getElementById("waxSeal");
+    const tapHint = document.getElementById("tapHint");
     const nav = document.getElementById("nav");
     const toast = document.getElementById("toast");
 
-    // ---------- OPEN INVITATION ----------
-    openInvitation.addEventListener("click", () => {
-      loader.classList.add("hide");
-      document.body.style.overflow = "";
-      startPetals();
-      startMusic();
+    // ---------- OPEN INVITATION (wax-seal envelope) ----------
+    waxSeal.addEventListener("click", () => {
+      if(envelope.classList.contains("open")) return;
+      envelope.classList.add("open");
+      tapHint.style.opacity = "0";
+
+      setTimeout(() => {
+        loader.classList.add("hide");
+        document.body.style.overflow = "";
+        startPetals();
+        startMusic();
+      }, 1550);
     });
 
     // ---------- COUNTDOWN ----------
