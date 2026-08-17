@@ -64,7 +64,7 @@
         radial-gradient(circle at 50% 40%,rgba(200,154,69,.14),transparent 32%),
         #171016;
       color:#fff;
-      transition:opacity .9s ease,visibility .9s ease;
+      transition:opacity .20s ease,visibility .20s ease;
     }
     .loader.hide{opacity:0;visibility:hidden;pointer-events:none}
     .loader-inner{text-align:center}
@@ -133,7 +133,7 @@
     .envelope.open .card-content .loader-script{
       background:linear-gradient(100deg,var(--gold-2) 25%,#fff 50%,var(--gold-2) 75%);
       background-size:250% auto;-webkit-background-clip:text;background-clip:text;color:transparent;
-      animation:textShimmer 1.7s ease 1.3s forwards;
+      animation:textShimmer 2.7s ease 3.3s forwards;
     }
     @keyframes textShimmer{0%{background-position:220% 0}100%{background-position:-50% 0}}
     .card-content .loader-date{margin:6px 0 0;font-size:9px;opacity:0;transition:opacity .6s ease 1.9s}
@@ -155,7 +155,7 @@
     .seal-crack{
       position:absolute;top:50%;left:50%;width:2px;height:60%;background:rgba(20,8,8,.6);
       transform:translate(-50%,-50%) rotate(0) scaleY(0);opacity:0;pointer-events:none;
-      transition:transform .32s ease,opacity .2s ease;
+      transition:transform .50s ease,opacity .10s ease;
     }
     .seal-crack.c1{transform:translate(-50%,-50%) rotate(15deg) scaleY(0)}
     .seal-crack.c2{transform:translate(-50%,-50%) rotate(-35deg) scaleY(0)}
@@ -164,7 +164,7 @@
     .envelope.cracking .seal-crack.c1{transform:translate(-50%,-50%) rotate(15deg) scaleY(1)}
     .envelope.cracking .seal-crack.c2{transform:translate(-50%,-50%) rotate(-35deg) scaleY(1);transition-delay:.08s}
     .envelope.cracking .seal-crack.c3{transform:translate(-50%,-50%) rotate(70deg) scaleY(1);transition-delay:.16s}
-    .envelope.cracking .wax-seal{animation:sealShake .42s ease}
+    .envelope.cracking .wax-seal{animation:sealShake .90s ease}
     @keyframes sealShake{
       0%,100%{transform:translate(-50%,-50%) rotate(0)}
       25%{transform:translate(-52%,-50%) rotate(-5deg)}
