@@ -229,20 +229,24 @@
     .invite-ornament{font-size:clamp(18px,3vw,24px);color:var(--gold-2);opacity:0;transition:opacity 1s ease}
     .invite-card.open .invite-ornament{opacity:.9;transition-delay:.3s}
 
+    .invite-guest-line{
+      display:inline-block;
+      font-family:"Cormorant Garamond",serif;font-style:italic;
+      font-size:clamp(14px,2.6vw,18px);color:#f6ecd9;
+      padding:5px 22px;margin:0 0 14px;
+      border-top:1px solid rgba(228,195,123,.4);
+      border-bottom:1px solid rgba(228,195,123,.4);
+      opacity:0;transition:opacity 1s ease;
+      max-width:92%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    }
+    .invite-card.open .invite-guest-line{opacity:1;transition-delay:.5s}
+    .invite-guest-line:empty{display:none;margin:0;padding:0;border:0}
+
     .invite-eyebrow{
       font-size:clamp(9px,1.6vw,11px);letter-spacing:4px;text-transform:uppercase;color:#cdb9ab;
       margin:10px 0 20px;opacity:0;transition:opacity 1s ease;
     }
-    .invite-card.open .invite-eyebrow{opacity:1;transition-delay:.7s}
-
-    .invite-guest-line{
-      font-family:"Cormorant Garamond",serif;font-style:italic;
-      font-size:clamp(13px,2.4vw,17px);color:#f3e6cf;
-      margin:0 0 16px;opacity:0;transition:opacity 1s ease;
-      max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-    }
-    .invite-card.open .invite-guest-line{opacity:1;transition-delay:.95s}
-    .invite-guest-line:empty{display:none;margin:0}
+    .invite-card.open .invite-eyebrow{opacity:1;transition-delay:.9s}
 
     /* rotating orbit ring around the monogram */
     .monogram-orbit{position:relative;width:fit-content;margin:0 auto 18px}
@@ -318,7 +322,13 @@
     .loader.finishing .flash-overlay{animation:flashOut 1.2s ease forwards}
     @keyframes flashOut{0%{opacity:0}50%{opacity:.85}100%{opacity:0}}
 
-    .tap-hint{margin-top:22px;letter-spacing:3px;font-size:10px;color:#d6c5cb;transition:opacity .4s ease;animation:hintPulse 1.8s infinite}
+    .loader-caption{
+      position:absolute;left:50%;bottom:9%;transform:translateX(-50%);z-index:15;
+      letter-spacing:2.5px;font-size:10px;color:#d6c5cb;text-align:center;
+      white-space:nowrap;opacity:1;transition:opacity .45s ease;
+    }
+    .loader-caption.pulse{animation:hintPulse 1.8s infinite}
+    .loader-caption.fade{opacity:0}
     @keyframes hintPulse{50%{opacity:.3}}
 
     /* ---------- GLOBAL ---------- */
@@ -661,7 +671,6 @@
           </button>
           <div class="spark-field" id="sparkField"></div>
         </div>
-        <div class="tap-hint" id="tapHint">Tap the seal to open</div>
       </div>
 
       <div class="invite-card" id="inviteCard">
@@ -676,8 +685,8 @@
           </div>
           <div class="invite-content">
             <div class="invite-ornament">❦</div>
-            <div class="invite-eyebrow">The Wedding Of</div>
             <div class="invite-guest-line" id="inviteGuestLine"></div>
+            <div class="invite-eyebrow" id="inviteEyebrow">The Wedding Of</div>
             <div class="monogram-orbit">
               <span class="orbit-ring"><span class="orbit-dot"></span></span>
               <div class="monogram">R<span>♥</span>A</div>
@@ -692,6 +701,7 @@
         </div>
       </div>
     </div>
+    <div class="loader-caption pulse" id="loaderCaption">Tap the seal to open</div>
     <div class="flash-overlay" id="flashOverlay"></div>
   </div>
 
@@ -1071,15 +1081,25 @@
     const inviteNames = document.getElementById("inviteNames");
     const cardDust = document.getElementById("cardDust");
     const waxSeal = document.getElementById("waxSeal");
-    const tapHint = document.getElementById("tapHint");
+    const loaderCaption = document.getElementById("loaderCaption");
     const sparkField = document.getElementById("sparkField");
     const nav = document.getElementById("nav");
     const toast = document.getElementById("toast");
 
+    // Crossfades the caption line at the bottom of the loader to a new message.
+    function updateCaption(text){
+      if(!loaderCaption) return;
+      loaderCaption.classList.add("fade");
+      setTimeout(() => {
+        loaderCaption.textContent = text;
+        loaderCaption.classList.remove("fade");
+      }, 400);
+    }
+
     // ---------- GUEST NAME PERSONALIZATION ----------
     // Share a link like  ?guest=Rahim%20Vai  (or ?to=... / ?name=...) with each
-    // guest and the card will greet them by name, and their RSVP name field
-    // will be pre-filled for convenience.
+    // guest and the card will greet them by name — with the wording adjusted to
+    // read as a real invitation — and their RSVP name field pre-fills too.
     (function personalizeForGuest(){
       const urlParams = new URLSearchParams(window.location.search);
       const rawName = urlParams.get("guest") || urlParams.get("to") || urlParams.get("name");
@@ -1089,11 +1109,9 @@
       if(!guestName) return;
 
       const guestLine = document.getElementById("inviteGuestLine");
-      if(guestLine){
-        guestLine.textContent = "Dear " + guestName + ",";
-        const eyebrow = document.querySelector(".invite-eyebrow");
-        if(eyebrow) eyebrow.style.marginBottom = "4px";
-      }
+      const eyebrow = document.getElementById("inviteEyebrow");
+      if(guestLine) guestLine.textContent = "Dear " + guestName + ",";
+      if(eyebrow) eyebrow.textContent = "You are warmly invited to the wedding of";
 
       const rsvpNameInput = document.getElementById("guestName");
       if(rsvpNameInput && !rsvpNameInput.value){
@@ -1101,7 +1119,7 @@
       }
     })();
 
-    // ---------- OPEN INVITATION — cinematic ~10s journey ----------
+    // ---------- OPEN INVITATION — cinematic ~11.5s journey ----------
     function spawnSparks(count){
       for(let i=0;i<count;i++){
         const s = document.createElement("span");
@@ -1169,58 +1187,68 @@
 
     waxSeal.addEventListener("click", () => {
       if(envelope.classList.contains("cracking")) return;
-      tapHint.style.opacity = "0";
+      loaderCaption.classList.remove("pulse");
 
-      // Phase 1 (0 - 1.7s): the wax seal trembles as three cracks slowly spread across it
+      // Phase 1 (0 - 1.8s): the wax seal trembles as three cracks slowly spread across it
       envelope.classList.add("cracking");
       spawnSparks(6);
+      updateCaption("Breaking the seal…");
 
-      // Phase 2 (1.7 - 2.7s): the seal shatters, gold dust bursts outward
+      // Phase 2 (1.8 - 2.8s): the seal shatters, gold dust bursts outward
       setTimeout(() => {
         envelope.classList.add("breaking");
         spawnSparks(28);
-      }, 1700);
+        updateCaption("Gold dust scatters into the light…");
+      }, 1800);
 
-      // Phase 3 (2.2 - 4.8s): the flap slowly folds open and warm light spills from within
+      // Phase 3 (2.4 - 5.0s): the flap slowly folds open and warm light spills from within
       setTimeout(() => {
         envelope.classList.add("open");
-      }, 2200);
+        updateCaption("The envelope unfolds…");
+      }, 2400);
 
-      // Phase 4 (~4.0s): the envelope itself dissolves aside, having done its job
+      // Phase 4 (~4.3s): the envelope itself dissolves aside, having done its job
       setTimeout(() => {
         envelopeWrap.classList.add("fade-out");
-      }, 4000);
+      }, 4300);
 
-      // Phase 5 (4.3s onward): the large invitation card fades into the centre of the
-      // screen — ornament, eyebrow, orbit ring, monogram, names, tagline, divider and
-      // date each arrive one at a time, like ink slowly settling on paper. Ambient gold
-      // dust begins drifting inside the card once it is fully in view.
+      // Phase 5 (4.7s onward): the large invitation card fades into the centre of the
+      // screen — ornament, guest greeting, eyebrow, orbit ring, monogram, names,
+      // tagline, divider and date each arrive one at a time, like ink slowly
+      // settling on paper. Ambient gold dust drifts inside once it is in view.
       setTimeout(() => {
         inviteCard.classList.add("open");
         fitInviteName();
         dustTimer = setInterval(spawnDust, 450);
-      }, 4300);
+        updateCaption("Your invitation is arriving…");
+      }, 4700);
 
-      // Phase 5b (~8.3s): the card has fully settled — a soft foil-shimmer now
-      // sweeps across it every few seconds, like light catching gold leaf.
+      // Phase 5b (~7.2s): a little more warmth while the names finish settling in
+      setTimeout(() => {
+        updateCaption("A beautiful celebration awaits…");
+      }, 7200);
+
+      // Phase 5c (~9.2s): the card has fully settled — a soft foil-shimmer now
+      // sweeps across it every few seconds, and the caption steps aside.
       setTimeout(() => {
         inviteCard.classList.add("settled");
-      }, 8300);
+        updateCaption("");
+      }, 9200);
 
-      // Phase 6 (~9.2s): a final wash of golden light sweeps across the whole screen
+      // Phase 6 (~10.4s): a final wash of golden light sweeps across the whole screen
       setTimeout(() => {
         loader.classList.add("finishing");
         spawnSparks(22);
-      }, 9200);
+      }, 10400);
 
-      // Phase 7 (~10.2s): reveal the site — petals fall, music begins
+      // Phase 7 (~11.5s): reveal the site — petals fall, music begins
       setTimeout(() => {
         loader.classList.add("hide");
         document.body.style.overflow = "";
         if(dustTimer) clearInterval(dustTimer);
         startPetals();
         startMusic();
-      }, 10200);
+      }, 11500);
     });
 
     // ---------- COUNTDOWN ----------
