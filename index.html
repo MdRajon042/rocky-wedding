@@ -235,6 +235,15 @@
     }
     .invite-card.open .invite-eyebrow{opacity:1;transition-delay:.7s}
 
+    .invite-guest-line{
+      font-family:"Cormorant Garamond",serif;font-style:italic;
+      font-size:clamp(13px,2.4vw,17px);color:#f3e6cf;
+      margin:0 0 16px;opacity:0;transition:opacity 1s ease;
+      max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    }
+    .invite-card.open .invite-guest-line{opacity:1;transition-delay:.95s}
+    .invite-guest-line:empty{display:none;margin:0}
+
     /* rotating orbit ring around the monogram */
     .monogram-orbit{position:relative;width:fit-content;margin:0 auto 18px}
     .orbit-ring{
@@ -668,6 +677,7 @@
           <div class="invite-content">
             <div class="invite-ornament">❦</div>
             <div class="invite-eyebrow">The Wedding Of</div>
+            <div class="invite-guest-line" id="inviteGuestLine"></div>
             <div class="monogram-orbit">
               <span class="orbit-ring"><span class="orbit-dot"></span></span>
               <div class="monogram">R<span>♥</span>A</div>
@@ -1065,6 +1075,31 @@
     const sparkField = document.getElementById("sparkField");
     const nav = document.getElementById("nav");
     const toast = document.getElementById("toast");
+
+    // ---------- GUEST NAME PERSONALIZATION ----------
+    // Share a link like  ?guest=Rahim%20Vai  (or ?to=... / ?name=...) with each
+    // guest and the card will greet them by name, and their RSVP name field
+    // will be pre-filled for convenience.
+    (function personalizeForGuest(){
+      const urlParams = new URLSearchParams(window.location.search);
+      const rawName = urlParams.get("guest") || urlParams.get("to") || urlParams.get("name");
+      if(!rawName) return;
+
+      const guestName = rawName.trim().slice(0, 40);
+      if(!guestName) return;
+
+      const guestLine = document.getElementById("inviteGuestLine");
+      if(guestLine){
+        guestLine.textContent = "Dear " + guestName + ",";
+        const eyebrow = document.querySelector(".invite-eyebrow");
+        if(eyebrow) eyebrow.style.marginBottom = "4px";
+      }
+
+      const rsvpNameInput = document.getElementById("guestName");
+      if(rsvpNameInput && !rsvpNameInput.value){
+        rsvpNameInput.value = guestName;
+      }
+    })();
 
     // ---------- OPEN INVITATION — cinematic ~10s journey ----------
     function spawnSparks(count){
